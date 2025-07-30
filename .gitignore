@@ -1,10 +1,23 @@
+# Environment variables
 .env
+
+# Node.js dependencies
 node_modules/
+
+# Build output
 dist/
+
+# Test coverage reports
 coverage/
+
+# Log files
 logs/
 *.log
 npm-debug.log*
+
+# macOS system files
 .DS_Store
+
+# IDE settings
 .idea/
 .vscode/
