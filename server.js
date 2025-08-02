@@ -6,6 +6,8 @@ import cors from "cors";
 import chalk from "chalk";
 import morgan from "morgan"; // For request logging (recommended)
 import helmet from "helmet"; // For basic security headers (recommended)
+import RegisterModel from "./models/RegisterModel.js";
+import registerRoutes from "./routes/RegisterRoute.js"; // Add this import
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,9 +36,32 @@ app.use(helmet()); // Adds various security headers
 // This example assumes Mongoose for consistency with common setups.
 mongoose
   .connect(MONGODB_URI)
-  .then(() =>
-    console.log(chalk.green.bold("[✓] MongoDB connected successfully"))
-  )
+  .then(async () => {
+    console.log(chalk.green.bold("[✓] MongoDB connected successfully"));
+    // Fetch and log all collections
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    console.log(
+      chalk.blueBright("Available Collections:"),
+      collections.map((col) => col.name)
+    );
+
+    // Fetch and log documents from each collection
+    for (const col of collections) {
+      const docs = await mongoose.connection.db
+        .collection(col.name)
+        .find({})
+        .toArray();
+      console.log(
+        chalk.magentaBright(`Documents in collection "${col.name}":`),
+        docs
+      );
+    }
+
+    // Set the database for RegisterModel
+    RegisterModel.setDatabase(mongoose.connection.db); // where db is your MongoDB database instance
+  })
   .catch((err) => {
     console.error(chalk.red.bold("[✗] MongoDB connection error:"), err.message);
     process.exit(1); // Exit if DB connection fails at startup
@@ -46,6 +71,9 @@ mongoose
 app.get("/", (req, res) => {
   res.send("✅ Backend API is running");
 });
+
+// Add your register routes here
+app.use("/api/auth", registerRoutes);
 
 // --- Error Handling Middleware ---
 // This should be the last middleware added, to catch any unhandled errors.
