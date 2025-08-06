@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 class RegisterController {
   static async registerAdmin(req, res) {
     try {
-      console.log("Registration request received:", req.body); // Add this line
+      console.log("Registration request received:", req.body);
 
       const {
         username,
@@ -14,7 +14,7 @@ class RegisterController {
         middle_name,
         last_name,
         email,
-        role_id,
+        role,
         is_active,
       } = req.body;
 
@@ -23,6 +23,14 @@ class RegisterController {
         return res.status(400).json({
           success: false,
           message: "Required fields are missing",
+        });
+      }
+
+      // Validate role
+      if (role && !["admin", "super_admin"].includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid role. Must be 'admin' or 'super_admin'",
         });
       }
 
@@ -56,7 +64,7 @@ class RegisterController {
         middle_name: middle_name || null,
         last_name,
         email,
-        role_id: role_id || 1, // Default to admin
+        role: role || "admin", // Changed from role_id to role
         is_active: is_active !== undefined ? is_active : true,
       };
 
@@ -68,7 +76,7 @@ class RegisterController {
         {
           id: newAdmin._id,
           username: newAdmin.username,
-          role_id: newAdmin.role_id,
+          role: newAdmin.role, // Changed from role_id to role
         },
         process.env.JWT_SECRET,
         { expiresIn: "7d" }
@@ -86,11 +94,11 @@ class RegisterController {
         },
       });
     } catch (error) {
-      console.error("Detailed registration error:", error); // Enhanced logging
+      console.error("Detailed registration error:", error);
       return res.status(500).json({
         success: false,
         message: "Internal server error",
-        error: error.message, // Add this for debugging (remove in production)
+        error: error.message,
       });
     }
   }

@@ -6,8 +6,18 @@ import cors from "cors";
 import chalk from "chalk";
 import morgan from "morgan"; // For request logging (recommended)
 import helmet from "helmet"; // For basic security headers (recommended)
+
+// Models import
 import RegisterModel from "./models/RegisterModel.js";
-import registerRoutes from "./routes/RegisterRoute.js"; // Add this import
+import LoginModel from "./models/LoginModel.js";
+import BarangayModel from "./models/BarangayModel.js";
+
+
+// Route import
+import RegisterRoutes from "./routes/RegisterRoute.js";
+import LoginRoutes from "./routes/LoginRoutes.js";
+import BarangayRoutes from "./routes/BarangayRoute.js";
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,27 +54,29 @@ mongoose
       .toArray();
     console.log(
       chalk.blueBright("Available Collections:"),
-      collections.map((col) => col.name)
+      collections.map((col) => col.name) // Changed from col.admin to col.name
     );
 
     // Fetch and log documents from each collection
     for (const col of collections) {
       const docs = await mongoose.connection.db
-        .collection(col.name)
+        .collection(col.name) // Changed from col.admin to col.name
         .find({})
         .toArray();
       console.log(
         chalk.magentaBright(`Documents in collection "${col.name}":`),
-        docs
+        docs.length > 0 ? `Found ${docs.length} documents` : "No documents found"
       );
     }
 
-    // Set the database for RegisterModel
-    RegisterModel.setDatabase(mongoose.connection.db); // where db is your MongoDB database instance
+    // MODELS
+    RegisterModel.setDatabase(mongoose.connection.db); 
+    LoginModel.setDatabase(mongoose.connection.db); 
+    BarangayModel.setDatabase(mongoose.connection.db);
   })
   .catch((err) => {
     console.error(chalk.red.bold("[✗] MongoDB connection error:"), err.message);
-    process.exit(1); // Exit if DB connection fails at startup
+    process.exit(1);
   });
 
 // --- Routes ---
@@ -72,8 +84,10 @@ app.get("/", (req, res) => {
   res.send("✅ Backend API is running");
 });
 
-// Add your register routes here
-app.use("/api/auth", registerRoutes);
+// ROUTES
+app.use("/api/auth", RegisterRoutes);
+app.use("/api/auth", LoginRoutes);
+app.use("/api/barangays", BarangayRoutes);
 
 // --- Error Handling Middleware ---
 // This should be the last middleware added, to catch any unhandled errors.
