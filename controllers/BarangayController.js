@@ -103,9 +103,7 @@ class BarangayController {
       }
 
       // Check if barangayName already exists
-      const existingBarangayName = await BarangayModel.findByName(
-        barangayName
-      );
+      const existingBarangayName = await BarangayModel.findByName(barangayName);
       if (existingBarangayName) {
         return res.status(400).json({
           success: false,

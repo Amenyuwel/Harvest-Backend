@@ -89,7 +89,6 @@ class FarmerController {
   // Get all farmers
   static async getAllFarmers(req, res) {
     try {
-      console.log("=== GET ALL FARMERS REQUEST ===");
       const farmers = await FarmerModel.findAll();
       console.log("✅ Found farmers:", farmers.length);
 
