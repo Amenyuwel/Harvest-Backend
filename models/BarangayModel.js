@@ -33,25 +33,25 @@ class BarangayModel {
     }
   }
 
-  // Find barangay by barangay_id
-  static async findByBarangayId(barangay_id) {
+  // Find barangay by barangayId
+  static async findByBarangayId(barangayId) {
     try {
       const barangay = await BarangayModel.collection.findOne({
-        barangay_id: barangay_id,
+        barangayId: barangayId,
       });
       return barangay;
     } catch (error) {
       throw new Error(
-        "Error finding barangay by barangay_id: " + error.message
+        "Error finding barangay by barangayId: " + error.message
       );
     }
   }
 
   // Find barangay by name
-  static async findByName(barangay_name) {
+  static async findByName(barangayName) {
     try {
       const barangay = await BarangayModel.collection.findOne({
-        barangay_name: barangay_name,
+        barangayName: barangayName,
       });
       return barangay;
     } catch (error) {
@@ -66,8 +66,8 @@ class BarangayModel {
 
       const newBarangay = {
         ...barangayData,
-        created_at: now,
-        updated_at: now,
+        createdAt: now,
+        updatedAt: now,
       };
 
       const result = await BarangayModel.collection.insertOne(newBarangay);
@@ -95,7 +95,7 @@ class BarangayModel {
         {
           $set: {
             ...updateData,
-            updated_at: now,
+            updatedAt: now,
           },
         }
       );
@@ -132,7 +132,7 @@ class BarangayModel {
     try {
       const barangays = await BarangayModel.collection
         .find({
-          barangay_name: { $regex: searchTerm, $options: "i" },
+          barangayName: { $regex: searchTerm, $options: "i" },
         })
         .toArray();
       return barangays;

@@ -50,11 +50,11 @@ class BarangayController {
     }
   }
 
-  // Get barangay by barangay_id
+  // Get barangay by barangayId
   static async getBarangayByBarangayId(req, res) {
     try {
-      const { barangay_id } = req.params;
-      const barangay = await BarangayModel.findByBarangayId(barangay_id);
+      const { barangayId } = req.params;
+      const barangay = await BarangayModel.findByBarangayId(barangayId);
 
       if (!barangay) {
         return res.status(404).json({
@@ -69,7 +69,7 @@ class BarangayController {
         data: barangay,
       });
     } catch (error) {
-      console.error("Error fetching barangay by barangay_id:", error);
+      console.error("Error fetching barangay by barangayId:", error);
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -81,19 +81,19 @@ class BarangayController {
   // Create new barangay
   static async createBarangay(req, res) {
     try {
-      const { barangay_id, barangay_name } = req.body;
+      const { barangayId, barangayName } = req.body;
 
       // Validation
-      if (!barangay_id || !barangay_name) {
+      if (!barangayId || !barangayName) {
         return res.status(400).json({
           success: false,
-          message: "barangay_id and barangay_name are required",
+          message: "barangayId and barangayName are required",
         });
       }
 
-      // Check if barangay_id already exists
+      // Check if barangayId already exists
       const existingBarangayId = await BarangayModel.findByBarangayId(
-        barangay_id
+        barangayId
       );
       if (existingBarangayId) {
         return res.status(400).json({
@@ -102,9 +102,9 @@ class BarangayController {
         });
       }
 
-      // Check if barangay_name already exists
+      // Check if barangayName already exists
       const existingBarangayName = await BarangayModel.findByName(
-        barangay_name
+        barangayName
       );
       if (existingBarangayName) {
         return res.status(400).json({
@@ -115,8 +115,8 @@ class BarangayController {
 
       // Create barangay data
       const barangayData = {
-        barangay_id,
-        barangay_name,
+        barangayId,
+        barangayName,
       };
 
       // Create barangay
@@ -141,7 +141,7 @@ class BarangayController {
   static async updateBarangay(req, res) {
     try {
       const { id } = req.params;
-      const { barangay_id, barangay_name } = req.body;
+      const { barangayId, barangayName } = req.body;
 
       // Check if barangay exists
       const existingBarangay = await BarangayModel.findById(id);
@@ -152,10 +152,10 @@ class BarangayController {
         });
       }
 
-      // Check if new barangay_id already exists (if different from current)
-      if (barangay_id && barangay_id !== existingBarangay.barangay_id) {
+      // Check if new barangayId already exists (if different from current)
+      if (barangayId && barangayId !== existingBarangay.barangayId) {
         const duplicateBarangayId = await BarangayModel.findByBarangayId(
-          barangay_id
+          barangayId
         );
         if (duplicateBarangayId) {
           return res.status(400).json({
@@ -165,10 +165,10 @@ class BarangayController {
         }
       }
 
-      // Check if new barangay_name already exists (if different from current)
-      if (barangay_name && barangay_name !== existingBarangay.barangay_name) {
+      // Check if new barangayName already exists (if different from current)
+      if (barangayName && barangayName !== existingBarangay.barangayName) {
         const duplicateBarangayName = await BarangayModel.findByName(
-          barangay_name
+          barangayName
         );
         if (duplicateBarangayName) {
           return res.status(400).json({
@@ -180,8 +180,8 @@ class BarangayController {
 
       // Update data
       const updateData = {};
-      if (barangay_id) updateData.barangay_id = barangay_id;
-      if (barangay_name) updateData.barangay_name = barangay_name;
+      if (barangayId) updateData.barangayId = barangayId;
+      if (barangayName) updateData.barangayName = barangayName;
 
       await BarangayModel.updateBarangay(id, updateData);
 

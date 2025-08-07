@@ -11,12 +11,15 @@ import helmet from "helmet"; // For basic security headers (recommended)
 import RegisterModel from "./models/RegisterModel.js";
 import LoginModel from "./models/LoginModel.js";
 import BarangayModel from "./models/BarangayModel.js";
-
+import CropsModel from "./models/CropsModel.js";
+import FarmerModel from "./models/FarmerModel.js";
 
 // Route import
 import RegisterRoutes from "./routes/RegisterRoute.js";
-import LoginRoutes from "./routes/LoginRoutes.js";
+import LoginRoutes from "./routes/LoginRoute.js";
 import BarangayRoutes from "./routes/BarangayRoute.js";
+import CropsRoutes from "./routes/CropsRoute.js";
+import FarmerRoutes from "./routes/FarmerRoute.js";
 
 
 const app = express();
@@ -69,10 +72,12 @@ mongoose
       );
     }
 
-    // MODELS
+    // Initialize models
     RegisterModel.setDatabase(mongoose.connection.db); 
     LoginModel.setDatabase(mongoose.connection.db); 
     BarangayModel.setDatabase(mongoose.connection.db);
+    CropsModel.setDatabase(mongoose.connection.db);
+    FarmerModel.setDatabase(mongoose.connection.db); // Add this line
   })
   .catch((err) => {
     console.error(chalk.red.bold("[✗] MongoDB connection error:"), err.message);
@@ -88,6 +93,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", RegisterRoutes);
 app.use("/api/auth", LoginRoutes);
 app.use("/api/barangays", BarangayRoutes);
+app.use("/api/crops", CropsRoutes);
+app.use("/api/farmers", FarmerRoutes); // Add this line
 
 // --- Error Handling Middleware ---
 // This should be the last middleware added, to catch any unhandled errors.
