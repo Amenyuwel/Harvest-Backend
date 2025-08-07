@@ -35,9 +35,9 @@ class RegisterModel {
 
       const newAdmin = {
         ...adminData,
-        created_at: now,
-        updated_at: now,
-        last_login: null,
+        createdAt: now,
+        updatedAt: now,
+        lastLogin: null,
       };
 
       const result = await RegisterModel.collection.insertOne(newAdmin);

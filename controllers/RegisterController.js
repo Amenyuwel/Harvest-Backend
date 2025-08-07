@@ -10,16 +10,16 @@ class RegisterController {
       const {
         username,
         password,
-        first_name,
-        middle_name,
-        last_name,
+        firstName,
+        middleName,
+        lastName,
         email,
         role,
-        is_active,
+        isActive,
       } = req.body;
 
       // Validation
-      if (!username || !password || !first_name || !last_name || !email) {
+      if (!username || !password || !firstName || !lastName || !email) {
         return res.status(400).json({
           success: false,
           message: "Required fields are missing",
@@ -27,10 +27,10 @@ class RegisterController {
       }
 
       // Validate role
-      if (role && !["admin", "super_admin"].includes(role)) {
+      if (role && !["admin", "superAdmin"].includes(role)) {
         return res.status(400).json({
           success: false,
-          message: "Invalid role. Must be 'admin' or 'super_admin'",
+          message: "Invalid role. Must be 'admin' or 'superAdmin'",
         });
       }
 
@@ -60,12 +60,12 @@ class RegisterController {
       const adminData = {
         username,
         password: hashedPassword,
-        first_name,
-        middle_name: middle_name || null,
-        last_name,
+        firstName,
+        middleName: middleName || null,
+        lastName,
         email,
-        role: role || "admin", // Changed from role_id to role
-        is_active: is_active !== undefined ? is_active : true,
+        role: role || "admin", // Changed from roleId to role
+        isActive: isActive !== undefined ? isActive : true,
       };
 
       // Create admin
