@@ -8,15 +8,33 @@ class FarmerController {
       console.log("Request body:", req.body);
       console.log("Request headers:", req.headers);
 
-      const { rsbsaNumber, firstName, middleName, lastName, crop, area, barangay, contact, fullName } = req.body;
+      const {
+        rsbsaNumber,
+        firstName,
+        middleName,
+        lastName,
+        crop,
+        area,
+        barangay,
+        contact,
+        fullName,
+      } = req.body;
 
       // Validate required fields
-      if (!rsbsaNumber || !firstName || !lastName || !crop || !area || !barangay || !contact) {
+      if (
+        !rsbsaNumber ||
+        !firstName ||
+        !lastName ||
+        !crop ||
+        !area ||
+        !barangay ||
+        !contact
+      ) {
         console.log("❌ Validation failed - missing required fields");
         return res.status(400).json({
           success: false,
           message: "All required fields must be provided",
-          received: req.body
+          received: req.body,
         });
       }
 
@@ -31,7 +49,7 @@ class FarmerController {
         barangay,
         contact,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       console.log("✅ Farmer data to save:", farmerData);
@@ -60,7 +78,7 @@ class FarmerController {
       console.log("=== GET FARMER COUNT REQUEST ===");
       const { barangayId } = req.params;
       console.log("Barangay ID:", barangayId);
-      
+
       if (!barangayId) {
         return res.status(400).json({
           success: false,
@@ -100,6 +118,119 @@ class FarmerController {
       });
     } catch (error) {
       console.error("❌ Error fetching farmers:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  }
+
+  // Update farmer by ID
+  static async updateFarmer(req, res) {
+    try {
+      console.log("=== UPDATE FARMER REQUEST ===");
+      const { id } = req.params;
+      console.log("Farmer ID:", id);
+      console.log("Request body:", req.body);
+
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "Farmer ID is required",
+        });
+      }
+
+      const {
+        firstName,
+        middleName,
+        lastName,
+        crop,
+        area,
+        barangay,
+        contact,
+        fullName,
+      } = req.body;
+
+      // Validate required fields
+      if (!firstName || !lastName || !crop || !area || !barangay || !contact) {
+        console.log("❌ Validation failed - missing required fields");
+        return res.status(400).json({
+          success: false,
+          message: "All required fields must be provided",
+          received: req.body,
+        });
+      }
+
+      const updateData = {
+        firstName,
+        middleName: middleName || "",
+        lastName,
+        fullName: fullName || `${firstName} ${lastName}`,
+        crop,
+        area,
+        barangay,
+        contact,
+        updatedAt: new Date(),
+      };
+
+      console.log("✅ Update data:", updateData);
+
+      const result = await FarmerModel.updateById(id, updateData);
+      console.log("✅ Database result:", result);
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Farmer not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Farmer updated successfully",
+        data: { _id: id, ...updateData },
+      });
+    } catch (error) {
+      console.error("❌ Error updating farmer:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
+    }
+  }
+
+  // Delete farmer by ID
+  static async deleteFarmer(req, res) {
+    try {
+      console.log("=== DELETE FARMER REQUEST ===");
+      const { id } = req.params;
+      console.log("Farmer ID:", id);
+
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "Farmer ID is required",
+        });
+      }
+
+      const result = await FarmerModel.deleteById(id);
+      console.log("✅ Database result:", result);
+
+      if (result.deletedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Farmer not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Farmer deleted successfully",
+      });
+    } catch (error) {
+      console.error("❌ Error deleting farmer:", error);
       return res.status(500).json({
         success: false,
         message: "Internal server error",
