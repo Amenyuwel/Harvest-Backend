@@ -12,4 +12,10 @@ router.get("/", FarmerController.getAllFarmers);
 // POST /api/farmers - Create new farmer
 router.post("/", FarmerController.createFarmer);
 
+// PUT /api/farmers/:id - Update farmer by ID
+router.put("/:id", FarmerController.updateFarmer);
+
+// DELETE /api/farmers/:id - Delete farmer by ID
+router.delete("/:id", FarmerController.deleteFarmer);
+
 export default router;
