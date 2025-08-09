@@ -4,7 +4,6 @@ class FarmerController {
   // Create new farmer
   static async createFarmer(req, res) {
     try {
-      console.log("=== CREATE FARMER REQUEST ===");
       console.log("Request body:", req.body);
       console.log("Request headers:", req.headers);
 
@@ -75,7 +74,7 @@ class FarmerController {
   // Get farmer count by barangay
   static async getFarmerCountByBarangay(req, res) {
     try {
-      console.log("=== GET FARMER COUNT REQUEST ===");
+
       const { barangayId } = req.params;
       console.log("Barangay ID:", barangayId);
 
@@ -129,7 +128,7 @@ class FarmerController {
   // Update farmer by ID
   static async updateFarmer(req, res) {
     try {
-      console.log("=== UPDATE FARMER REQUEST ===");
+
       const { id } = req.params;
       console.log("Farmer ID:", id);
       console.log("Request body:", req.body);
@@ -204,7 +203,7 @@ class FarmerController {
   // Delete farmer by ID
   static async deleteFarmer(req, res) {
     try {
-      console.log("=== DELETE FARMER REQUEST ===");
+
       const { id } = req.params;
       console.log("Farmer ID:", id);
 
