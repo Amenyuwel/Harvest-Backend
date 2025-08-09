@@ -13,6 +13,8 @@ import LoginModel from "./models/LoginModel.js";
 import BarangayModel from "./models/BarangayModel.js";
 import CropsModel from "./models/CropsModel.js";
 import FarmerModel from "./models/FarmerModel.js";
+import PestModel from "./models/PestModel.js";
+import PestReportModel from "./models/PestReportModel.js";
 
 // Route import
 import RegisterRoutes from "./routes/RegisterRoute.js";
@@ -20,7 +22,8 @@ import LoginRoutes from "./routes/LoginRoute.js";
 import BarangayRoutes from "./routes/BarangayRoute.js";
 import CropsRoutes from "./routes/CropsRoute.js";
 import FarmerRoutes from "./routes/FarmerRoute.js";
-
+import PestRoutes from "./routes/PestRoute.js";
+import PestReportRoute from "./routes/PestReportRoute.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -68,16 +71,20 @@ mongoose
         .toArray();
       console.log(
         chalk.magentaBright(`Documents in collection "${col.name}":`),
-        docs.length > 0 ? `Found ${docs.length} documents` : "No documents found"
+        docs.length > 0
+          ? `Found ${docs.length} documents`
+          : "No documents found"
       );
     }
 
     // Initialize models
-    RegisterModel.setDatabase(mongoose.connection.db); 
-    LoginModel.setDatabase(mongoose.connection.db); 
+    RegisterModel.setDatabase(mongoose.connection.db);
+    LoginModel.setDatabase(mongoose.connection.db);
     BarangayModel.setDatabase(mongoose.connection.db);
     CropsModel.setDatabase(mongoose.connection.db);
-    FarmerModel.setDatabase(mongoose.connection.db); // Add this line
+    FarmerModel.setDatabase(mongoose.connection.db);
+    PestModel.setDatabase(mongoose.connection.db);
+    PestReportModel.setDatabase(mongoose.connection.db);
   })
   .catch((err) => {
     console.error(chalk.red.bold("[✗] MongoDB connection error:"), err.message);
@@ -94,7 +101,9 @@ app.use("/api/auth", RegisterRoutes);
 app.use("/api/auth", LoginRoutes);
 app.use("/api/barangays", BarangayRoutes);
 app.use("/api/crops", CropsRoutes);
-app.use("/api/farmers", FarmerRoutes); // Add this line
+app.use("/api/farmers", FarmerRoutes);
+app.use("/api/pests", PestRoutes);
+app.use("/api/pestReports", PestReportRoute);
 
 // --- Error Handling Middleware ---
 // This should be the last middleware added, to catch any unhandled errors.
