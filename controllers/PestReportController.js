@@ -1,4 +1,5 @@
 import PestReportModel from "../models/PestReportModel.js";
+import { auditLog } from "../middleware/auditMiddleware.js";
 
 class PestReportController {
   // Get all pest reports

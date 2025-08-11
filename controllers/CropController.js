@@ -160,12 +160,19 @@ class CropController {
         });
       }
 
+      // Log the audit
+      await auditLog.update("crop", id, existingCrop, updateData, req);
+
       return res.status(200).json({
         success: true,
         message: "Crop updated successfully",
       });
     } catch (error) {
       console.error("Error updating crop:", error);
+      
+      // Log the failure
+      await auditLog.failure("UPDATE", "crop", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -179,6 +186,15 @@ class CropController {
     try {
       const { id } = req.params;
 
+      // Get the crop data before deletion for audit logging
+      const cropToDelete = await CropsModel.findById(id);
+      if (!cropToDelete) {
+        return res.status(404).json({
+          success: false,
+          message: "Crop not found",
+        });
+      }
+
       const result = await CropsModel.delete(id);
 
       if (result.deletedCount === 0) {
@@ -188,12 +204,19 @@ class CropController {
         });
       }
 
+      // Log the audit
+      await auditLog.delete("crop", id, cropToDelete, req);
+
       return res.status(200).json({
         success: true,
         message: "Crop deleted successfully",
       });
     } catch (error) {
       console.error("Error deleting crop:", error);
+      
+      // Log the failure
+      await auditLog.failure("DELETE", "crop", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",

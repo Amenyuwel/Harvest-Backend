@@ -1,5 +1,6 @@
 import express from "express";
 import CropController from "../controllers/CropController.js";
+import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -15,13 +16,13 @@ router.get("/", CropController.getAllCrops);
 // GET /api/crops/:id - Get crop by ID (MUST be after specific routes)
 router.get("/:id", CropController.getCropById);
 
-// POST /api/crops - Create new crop
-router.post("/", CropController.createCrop);
+// POST /api/crops - Create new crop (requires authentication)
+router.post("/", requireAuth, CropController.createCrop);
 
-// PUT /api/crops/:id - Update crop
-router.put("/:id", CropController.updateCrop);
+// PUT /api/crops/:id - Update crop (requires authentication)
+router.put("/:id", requireAuth, CropController.updateCrop);
 
-// DELETE /api/crops/:id - Delete crop
-router.delete("/:id", CropController.deleteCrop);
+// DELETE /api/crops/:id - Delete crop (requires authentication)
+router.delete("/:id", requireAuth, CropController.deleteCrop);
 
 export default router;
