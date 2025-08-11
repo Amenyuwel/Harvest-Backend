@@ -15,6 +15,7 @@ import CropsModel from "./models/CropsModel.js";
 import FarmerModel from "./models/FarmerModel.js";
 import PestModel from "./models/PestModel.js";
 import PestReportModel from "./models/PestReportModel.js";
+import AuditLogModel from "./models/AuditLogModel.js";
 
 // Route import
 import RegisterRoutes from "./routes/RegisterRoute.js";
@@ -24,6 +25,11 @@ import CropsRoutes from "./routes/CropsRoute.js";
 import FarmerRoutes from "./routes/FarmerRoute.js";
 import PestRoutes from "./routes/PestRoute.js";
 import PestReportRoute from "./routes/PestReportRoute.js";
+import AuditRoutes from "./routes/AuditRoute.js";
+
+// Middleware import
+import { auditRequestMiddleware, auditResponseMiddleware } from "./middleware/auditMiddleware.js";
+import { extractUserMiddleware } from "./middleware/authMiddleware.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -46,6 +52,13 @@ app.use(express.json()); // Parses incoming JSON requests
 app.use(express.urlencoded({ extended: true })); // Parses incoming URL-encoded requests (if needed)
 app.use(morgan("dev")); // HTTP request logger
 app.use(helmet()); // Adds various security headers
+
+// Authentication middleware - extract user info from JWT for audit logging
+app.use(extractUserMiddleware);
+
+// Audit middleware
+app.use(auditRequestMiddleware);
+app.use(auditResponseMiddleware);
 
 // --- MongoDB Connection (using Mongoose, as it's a popular ORM for MongoDB) ---
 // If you intend to use the 'mongodb' driver directly, the connection logic will be different.
@@ -85,6 +98,7 @@ mongoose
     FarmerModel.setDatabase(mongoose.connection.db);
     PestModel.setDatabase(mongoose.connection.db);
     PestReportModel.setDatabase(mongoose.connection.db);
+    AuditLogModel.setDatabase(mongoose.connection.db);
   })
   .catch((err) => {
     console.error(chalk.red.bold("[✗] MongoDB connection error:"), err.message);
@@ -104,6 +118,7 @@ app.use("/api/crops", CropsRoutes);
 app.use("/api/farmers", FarmerRoutes);
 app.use("/api/pests", PestRoutes);
 app.use("/api/pestReports", PestReportRoute);
+app.use("/api/audit", AuditRoutes);
 
 // --- Error Handling Middleware ---
 // This should be the last middleware added, to catch any unhandled errors.

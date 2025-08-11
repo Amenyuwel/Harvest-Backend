@@ -1,4 +1,5 @@
 import CropsModel from "../models/CropsModel.js";
+import { auditLog } from "../middleware/auditMiddleware.js";
 
 class CropController {
   // Get all crops
@@ -109,6 +110,9 @@ class CropController {
 
       const result = await CropsModel.create(cropData);
 
+      // Log the audit
+      await auditLog.create("crop", result.insertedId, cropData, req);
+
       return res.status(201).json({
         success: true,
         message: "Crop created successfully",
@@ -116,6 +120,10 @@ class CropController {
       });
     } catch (error) {
       console.error("Error creating crop:", error);
+      
+      // Log the failure
+      await auditLog.failure("CREATE", "crop", null, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",

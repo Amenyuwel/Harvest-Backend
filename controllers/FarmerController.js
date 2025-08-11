@@ -1,4 +1,5 @@
 import FarmerModel from "../models/FarmerModel.js";
+import { auditLog } from "../middleware/auditMiddleware.js";
 
 class FarmerController {
   // Create new farmer
@@ -56,6 +57,9 @@ class FarmerController {
       const result = await FarmerModel.create(farmerData);
       console.log("✅ Database result:", result);
 
+      // Log the audit
+      await auditLog.create("farmer", result.insertedId, farmerData, req);
+
       return res.status(201).json({
         success: true,
         message: "Farmer created successfully",
@@ -63,6 +67,10 @@ class FarmerController {
       });
     } catch (error) {
       console.error("❌ Error creating farmer:", error);
+      
+      // Log the failure
+      await auditLog.failure("CREATE", "farmer", null, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -140,6 +148,15 @@ class FarmerController {
         });
       }
 
+      // Get the old data first for audit logging
+      const oldFarmer = await FarmerModel.findById(id);
+      if (!oldFarmer) {
+        return res.status(404).json({
+          success: false,
+          message: "Farmer not found",
+        });
+      }
+
       const {
         firstName,
         middleName,
@@ -185,6 +202,9 @@ class FarmerController {
         });
       }
 
+      // Log the audit
+      await auditLog.update("farmer", id, oldFarmer, updateData, req);
+
       return res.status(200).json({
         success: true,
         message: "Farmer updated successfully",
@@ -192,6 +212,10 @@ class FarmerController {
       });
     } catch (error) {
       console.error("❌ Error updating farmer:", error);
+      
+      // Log the failure
+      await auditLog.failure("UPDATE", "farmer", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -214,6 +238,15 @@ class FarmerController {
         });
       }
 
+      // Get the farmer data before deletion for audit logging
+      const farmerToDelete = await FarmerModel.findById(id);
+      if (!farmerToDelete) {
+        return res.status(404).json({
+          success: false,
+          message: "Farmer not found",
+        });
+      }
+
       const result = await FarmerModel.deleteById(id);
       console.log("✅ Database result:", result);
 
@@ -224,12 +257,19 @@ class FarmerController {
         });
       }
 
+      // Log the audit
+      await auditLog.delete("farmer", id, farmerToDelete, req);
+
       return res.status(200).json({
         success: true,
         message: "Farmer deleted successfully",
       });
     } catch (error) {
       console.error("❌ Error deleting farmer:", error);
+      
+      // Log the failure
+      await auditLog.failure("DELETE", "farmer", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
