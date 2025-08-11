@@ -46,6 +46,27 @@ class FarmerModel {
     }
   }
 
+  static async findById(id) {
+    try {
+      console.log("Database connected:", !!this.db);
+      console.log("Finding farmer ID:", id);
+
+      if (!this.db) {
+        throw new Error("Database not connected");
+      }
+
+      const farmer = await this.db.collection("farmers").findOne({
+        _id: new mongoose.Types.ObjectId(id),
+      });
+
+      console.log("✅ Found farmer:", !!farmer);
+      return farmer;
+    } catch (error) {
+      console.error("❌ Error in FarmerModel.findById:", error);
+      throw error;
+    }
+  }
+
   static async create(farmerData) {
     try {
       console.log("Database connected:", !!this.db);
