@@ -1,4 +1,5 @@
 import PestModel from "../models/PestModel.js";
+import { auditLog } from "../middleware/auditMiddleware.js";
 
 class PestController {
   // Create new pest record
@@ -35,6 +36,9 @@ class PestController {
       const result = await PestModel.create(pestData);
       console.log("✅ Database result:", result);
 
+      // Log the audit
+      await auditLog.create("pest", result.insertedId, pestData, req);
+
       return res.status(201).json({
         success: true,
         message: "Pest record created successfully",
@@ -42,6 +46,10 @@ class PestController {
       });
     } catch (error) {
       console.error("❌ Error creating pest record:", error);
+      
+      // Log the failure
+      await auditLog.failure("CREATE", "pest", null, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -126,6 +134,15 @@ class PestController {
 
       const { pestName, recommendations, activeMonth, season } = req.body;
 
+      // Get the old data first for audit logging
+      const oldPest = await PestModel.findById(id);
+      if (!oldPest) {
+        return res.status(404).json({
+          success: false,
+          message: "Pest record not found",
+        });
+      }
+
       // Validate required fields
       if (!pestName || !recommendations || !activeMonth || !season) {
         console.log("❌ Validation failed - missing required fields");
@@ -159,6 +176,9 @@ class PestController {
         });
       }
 
+      // Log the audit
+      await auditLog.update("pest", id, oldPest, updateData, req);
+
       return res.status(200).json({
         success: true,
         message: "Pest record updated successfully",
@@ -166,6 +186,10 @@ class PestController {
       });
     } catch (error) {
       console.error("❌ Error updating pest record:", error);
+      
+      // Log the failure
+      await auditLog.failure("UPDATE", "pest", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",

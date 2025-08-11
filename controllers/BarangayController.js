@@ -1,4 +1,5 @@
 import BarangayModel from "../models/BarangayModel.js";
+import { auditLog } from "../middleware/auditMiddleware.js";
 
 class BarangayController {
   // Get all barangays
@@ -120,6 +121,9 @@ class BarangayController {
       // Create barangay
       const newBarangay = await BarangayModel.createBarangay(barangayData);
 
+      // Log the audit
+      await auditLog.create("barangay", newBarangay.insertedId || newBarangay._id, barangayData, req);
+
       return res.status(201).json({
         success: true,
         message: "Barangay created successfully",
@@ -127,6 +131,9 @@ class BarangayController {
       });
     } catch (error) {
       console.error("Error creating barangay:", error);
+      
+      // Log the failure
+      await auditLog.failure("CREATE", "barangay", null, error, req);
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -183,6 +190,9 @@ class BarangayController {
 
       await BarangayModel.updateBarangay(id, updateData);
 
+      // Log the audit
+      await auditLog.update("barangay", id, existingBarangay, updateData, req);
+
       // Get updated barangay
       const updatedBarangay = await BarangayModel.findById(id);
 
@@ -193,6 +203,10 @@ class BarangayController {
       });
     } catch (error) {
       console.error("Error updating barangay:", error);
+      
+      // Log the failure
+      await auditLog.failure("UPDATE", "barangay", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
@@ -217,12 +231,19 @@ class BarangayController {
 
       await BarangayModel.deleteBarangay(id);
 
+      // Log the audit
+      await auditLog.delete("barangay", id, existingBarangay, req);
+
       return res.status(200).json({
         success: true,
         message: "Barangay deleted successfully",
       });
     } catch (error) {
       console.error("Error deleting barangay:", error);
+      
+      // Log the failure
+      await auditLog.failure("DELETE", "barangay", req.params.id, error, req);
+      
       return res.status(500).json({
         success: false,
         message: "Internal server error",
