@@ -11,7 +11,7 @@ class LoginController {
       if (!email || !password) {
         return res.status(400).json({
           success: false,
-          message: "Email and password are required"
+          message: "Email and password are required",
         });
       }
 
@@ -20,7 +20,7 @@ class LoginController {
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: "This is not a registered user"
+          message: "This is not a registered user",
         });
       }
 
@@ -29,7 +29,7 @@ class LoginController {
       if (!isValidPassword) {
         return res.status(401).json({
           success: false,
-          message: "Invalid email or password"
+          message: "Invalid email or password",
         });
       }
 
@@ -48,14 +48,14 @@ class LoginController {
           id: user._id,
           email: user.email,
           name: user.name,
-          role: user.role
-        }
+          role: user.role,
+        },
       });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({
         success: false,
-        message: "Internal server error"
+        message: "Internal server error",
       });
     }
   }
@@ -65,13 +65,13 @@ class LoginController {
     try {
       res.status(200).json({
         success: true,
-        message: "Logged out successfully"
+        message: "Logged out successfully",
       });
     } catch (error) {
       console.error("Logout error:", error);
       res.status(500).json({
         success: false,
-        message: "Internal server error"
+        message: "Internal server error",
       });
     }
   }
@@ -79,39 +79,38 @@ class LoginController {
   // Get user profile
   static async getProfile(req, res) {
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      
-      if (!token) {
+      // Get user ID from the authenticated request (from your auth middleware)
+      const userId = req.user?.id || req.userId;
+
+      if (!userId) {
         return res.status(401).json({
           success: false,
-          message: "No token provided"
+          message: "Unauthorized",
         });
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await LoginModel.findById(decoded.userId);
+      // Fetch user data from database
+      const user = await LoginModel.findById(userId);
 
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: "User not found"
+          message: "User not found",
         });
       }
 
+      // Return user data (exclude password)
+      const { password, ...userWithoutPassword } = user;
+
       res.status(200).json({
         success: true,
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        }
+        user: userWithoutPassword,
       });
     } catch (error) {
-      console.error("Profile error:", error);
-      res.status(401).json({
+      console.error("Error fetching profile:", error);
+      res.status(500).json({
         success: false,
-        message: "Invalid token"
+        message: "Internal server error",
       });
     }
   }
