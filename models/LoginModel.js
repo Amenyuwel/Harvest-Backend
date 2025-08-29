@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ObjectId } from "mongodb";
 
 const adminSchema = new mongoose.Schema(
   {
@@ -17,6 +18,25 @@ const adminSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
+    },
+    // Add missing fields that the controller expects
+    firstName: {
+      type: String,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      trim: true,
+    },
+    middleName: {
+      type: String,
+      trim: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
       trim: true,
     },
     role: {
@@ -100,6 +120,30 @@ class LoginModel {
       return await Admin.find().select("-password");
     } catch (error) {
       console.error("Error finding all admins:", error);
+      throw error;
+    }
+  }
+
+  // Find admin by username - Use mongoose instead of raw DB
+  static async findByUsername(username) {
+    try {
+      return await Admin.findOne({ username });
+    } catch (error) {
+      console.error("Error finding admin by username:", error);
+      throw error;
+    }
+  }
+
+  // Find admin by ID and update - Use mongoose instead of raw DB
+  static async findByIdAndUpdate(id, updateData, options = {}) {
+    try {
+      return await Admin.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+        ...options,
+      }).select("-password");
+    } catch (error) {
+      console.error("Error updating admin by ID:", error);
       throw error;
     }
   }
