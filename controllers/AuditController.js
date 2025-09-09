@@ -4,7 +4,7 @@ import FarmerModel from "../models/FarmerModel.js";
 import CropsModel from "../models/CropsModel.js";
 import BarangayModel from "../models/BarangayModel.js";
 import PestModel from "../models/PestModel.js";
-import PestReportModel from "../models/PestReportModel.js";
+import ReportModel from "../models/ReportModel.js";
 
 class AuditController {
   /**
@@ -88,15 +88,11 @@ class AuditController {
                   resourceName = pest.pestName || pest.name;
                 }
                 break;
-              case "pest_reports":
-              case "pest_report":
-                const pestReport = await PestReportModel.findById(
-                  log.resourceId
-                );
-                if (pestReport) {
-                  resourceName = `Pest Report - ${
-                    pestReport.description || "Report"
-                  }`;
+              case "reports":
+              case "report":
+                const report = await ReportModel.findById(log.resourceId);
+                if (report) {
+                  resourceName = `Report - ${report.description || "Report"}`;
                 }
                 break;
             }
