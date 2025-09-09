@@ -14,7 +14,7 @@ import BarangayModel from "./models/BarangayModel.js";
 import CropsModel from "./models/CropsModel.js";
 import FarmerModel from "./models/FarmerModel.js";
 import PestModel from "./models/PestModel.js";
-import PestReportModel from "./models/PestReportModel.js";
+import ReportModel from "./models/ReportModel.js";
 import AuditLogModel from "./models/AuditLogModel.js";
 
 // Route import
@@ -24,7 +24,7 @@ import BarangayRoutes from "./routes/BarangayRoute.js";
 import CropsRoutes from "./routes/CropsRoute.js";
 import FarmerRoutes from "./routes/FarmerRoute.js";
 import PestRoutes from "./routes/PestRoute.js";
-import PestReportRoute from "./routes/PestReportRoute.js";
+import ReportRoute from "./routes/ReportRoute.js";
 import AuditRoutes from "./routes/AuditRoute.js";
 
 // Middleware import
@@ -97,7 +97,7 @@ mongoose
     CropsModel.setDatabase(mongoose.connection.db);
     FarmerModel.setDatabase(mongoose.connection.db);
     PestModel.setDatabase(mongoose.connection.db);
-    PestReportModel.setDatabase(mongoose.connection.db);
+    ReportModel.setDatabase(mongoose.connection.db);
     AuditLogModel.setDatabase(mongoose.connection.db);
   })
   .catch((err) => {
@@ -117,7 +117,7 @@ app.use("/api/barangays", BarangayRoutes);
 app.use("/api/crops", CropsRoutes);
 app.use("/api/farmers", FarmerRoutes);
 app.use("/api/pests", PestRoutes);
-app.use("/api/pestReports", PestReportRoute);
+app.use("/api/reports", ReportRoute);
 app.use("/api/audit", AuditRoutes);
 
 // --- Error Handling Middleware ---

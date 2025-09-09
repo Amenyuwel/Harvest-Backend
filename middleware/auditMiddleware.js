@@ -118,7 +118,7 @@ function extractResourceTypeFromUrl(path) {
     "/api/crops": "crop",
     "/api/barangays": "barangay",
     "/api/pests": "pest",
-    "/api/pestReports": "pest_report",
+    "/api/reports": "report",
     "/api/auth/register": "user_registration",
     "/api/auth/login": "user_login",
   };
