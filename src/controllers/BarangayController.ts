@@ -1,0 +1,281 @@
+import type { Request, Response } from 'express';
+import { auditLog } from '@/middleware/auditMiddleware';
+import BarangayModel from '@/models/BarangayModel';
+
+class BarangayController {
+  // Get all barangays
+  static async getAllBarangays(_req: Request, res: Response): Promise<Response> {
+    try {
+      const barangays = await BarangayModel.findAll();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Barangays retrieved successfully',
+        data: barangays,
+        count: barangays.length,
+      });
+    } catch (error) {
+      console.error('Error fetching barangays:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // Get barangay by ID
+  static async getBarangayById(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const barangay = await BarangayModel.findById(id);
+
+      if (!barangay) {
+        return res.status(404).json({
+          success: false,
+          message: 'Barangay not found',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Barangay retrieved successfully',
+        data: barangay,
+      });
+    } catch (error) {
+      console.error('Error fetching barangay by ID:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // Get barangay by barangayId
+  static async getBarangayByBarangayId(req: Request, res: Response): Promise<Response> {
+    try {
+      const { barangayId } = req.params;
+      const barangay = await BarangayModel.findByBarangayId(barangayId);
+
+      if (!barangay) {
+        return res.status(404).json({
+          success: false,
+          message: 'Barangay not found',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Barangay retrieved successfully',
+        data: barangay,
+      });
+    } catch (error) {
+      console.error('Error fetching barangay by barangayId:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // Create new barangay
+  static async createBarangay(req: Request, res: Response): Promise<Response> {
+    try {
+      const { barangayId, barangayName } = req.body;
+
+      // Validation
+      if (!barangayId || !barangayName) {
+        return res.status(400).json({
+          success: false,
+          message: 'barangayId and barangayName are required',
+        });
+      }
+
+      // Check if barangayId already exists
+      const existingBarangayId = await BarangayModel.findByBarangayId(barangayId);
+      if (existingBarangayId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Barangay ID already exists',
+        });
+      }
+
+      // Check if barangayName already exists
+      const existingBarangayName = await BarangayModel.findByName(barangayName);
+      if (existingBarangayName) {
+        return res.status(400).json({
+          success: false,
+          message: 'Barangay name already exists',
+        });
+      }
+
+      // Create barangay data
+      const barangayData = {
+        barangayId,
+        barangayName,
+      };
+
+      // Create barangay
+      const newBarangay = await BarangayModel.createBarangay(barangayData);
+
+      // Log the audit
+      await auditLog.create('barangay', newBarangay._id.toString(), barangayData, req);
+
+      return res.status(201).json({
+        success: true,
+        message: 'Barangay created successfully',
+        data: newBarangay,
+      });
+    } catch (error) {
+      console.error('Error creating barangay:', error);
+
+      // Log the failure
+      await auditLog.failure('CREATE', 'barangay', undefined, error as Error, req);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // Update barangay
+  static async updateBarangay(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const { barangayId, barangayName } = req.body;
+
+      // Check if barangay exists
+      const existingBarangay = await BarangayModel.findById(id);
+      if (!existingBarangay) {
+        return res.status(404).json({
+          success: false,
+          message: 'Barangay not found',
+        });
+      }
+
+      // Check if new barangayId already exists (if different from current)
+      if (barangayId && barangayId !== existingBarangay.barangayId) {
+        const duplicateBarangayId = await BarangayModel.findByBarangayId(barangayId);
+        if (duplicateBarangayId) {
+          return res.status(400).json({
+            success: false,
+            message: 'Barangay ID already exists',
+          });
+        }
+      }
+
+      // Check if new barangayName already exists (if different from current)
+      if (barangayName && barangayName !== existingBarangay.barangayName) {
+        const duplicateBarangayName = await BarangayModel.findByName(barangayName);
+        if (duplicateBarangayName) {
+          return res.status(400).json({
+            success: false,
+            message: 'Barangay name already exists',
+          });
+        }
+      }
+
+      // Update data
+      const updateData: Record<string, string> = {};
+      if (barangayId) updateData.barangayId = barangayId;
+      if (barangayName) updateData.barangayName = barangayName;
+
+      await BarangayModel.updateBarangay(id, updateData);
+
+      // Log the audit
+      await auditLog.update('barangay', id, existingBarangay, updateData, req);
+
+      // Get updated barangay
+      const updatedBarangay = await BarangayModel.findById(id);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Barangay updated successfully',
+        data: updatedBarangay,
+      });
+    } catch (error) {
+      console.error('Error updating barangay:', error);
+
+      // Log the failure
+      await auditLog.failure('UPDATE', 'barangay', req.params.id, error as Error, req);
+
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // Delete barangay
+  static async deleteBarangay(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+
+      // Check if barangay exists
+      const existingBarangay = await BarangayModel.findById(id);
+      if (!existingBarangay) {
+        return res.status(404).json({
+          success: false,
+          message: 'Barangay not found',
+        });
+      }
+
+      await BarangayModel.deleteBarangay(id);
+
+      // Log the audit
+      await auditLog.delete('barangay', id, existingBarangay, req);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Barangay deleted successfully',
+      });
+    } catch (error) {
+      console.error('Error deleting barangay:', error);
+
+      // Log the failure
+      await auditLog.failure('DELETE', 'barangay', req.params.id, error as Error, req);
+
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+
+  // Search barangays by name
+  static async searchBarangays(req: Request, res: Response): Promise<Response> {
+    try {
+      const { search } = req.query;
+
+      if (!search) {
+        return res.status(400).json({
+          success: false,
+          message: 'Search term is required',
+        });
+      }
+
+      const barangays = await BarangayModel.searchByName(search as string);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Search completed successfully',
+        data: barangays,
+        count: barangays.length,
+      });
+    } catch (error) {
+      console.error('Error searching barangays:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: (error as Error).message,
+      });
+    }
+  }
+}
+
+export default BarangayController;
